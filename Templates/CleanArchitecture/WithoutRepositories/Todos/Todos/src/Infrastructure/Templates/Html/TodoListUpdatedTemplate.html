@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List Updated</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .main-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        .content p {
+            margin: 0 0 10px;
+        }
+
+        .content h1 {
+            font-size: 20px;
+            color: #007bff;
+        }
+
+        .todo-list-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #888888;
+            background-color: #f9f9f9;
+            border-top: 1px solid #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">Todo List Updated</div>
+        <div class="content">
+            <h1>Hello, {{Username}}!</h1>
+            <p>Your todo list &quot;{{ListTitle}}&quot; has been updated successfully.</p>
+            <div class="todo-list-info">
+                <p><strong>List Details:</strong></p>
+                <p>Title: {{ListTitle}}</p>
+                <p>Last Modified: {{LastModified}}</p>
+            </div>
+            <p>You can view your updated todo list in the application to see all the changes.</p>
+        </div>
+        <div class="footer">© 2024 All rights reserved.</div>
+    </div>
+</body>
+</html>
