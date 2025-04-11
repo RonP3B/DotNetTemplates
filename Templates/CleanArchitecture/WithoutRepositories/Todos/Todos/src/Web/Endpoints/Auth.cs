@@ -3,10 +3,10 @@ using Todos.Application.Auth.Commands.ActivateAccount;
 using Todos.Application.Auth.Commands.ChangePassword;
 using Todos.Application.Auth.Commands.ForgotPassword;
 using Todos.Application.Auth.Commands.Login;
+using Todos.Application.Auth.Commands.RefreshAccessToken;
 using Todos.Application.Auth.Commands.ResendActivationMail;
 using Todos.Application.Auth.Commands.ResetPassword;
 using Todos.Application.Auth.DTOs;
-using Todos.Application.Auth.Queries.GetAccessToken;
 
 namespace Todos.Web.Endpoints;
 
@@ -15,10 +15,10 @@ public class Auth : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapGet(RefreshAccessToken, "access-token")
             .MapGet(RemoveRefreshToken, "logout")
             .MapGet(ActivateAccount, "account-activation")
             .MapPost(Login, "login")
+            .MapPost(RefreshAccessToken, "refresh-access-token")
             .MapPost(ChangePassword, "change-password")
             .MapPost(ResetPassword, "reset-password")
             .MapPost(ForgotPassword, "forgot-password")
@@ -62,7 +62,7 @@ public class Auth : EndpointGroupBase
         httpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken);
 
         RefreshedAccessTokenDto refreshedAccessToken = await sender.Send(
-            new GetAccessTokenQuery(refreshToken ?? "")
+            new RefreshAccessTokenCommand(refreshToken ?? "")
         );
 
         return TypedResults.Ok(refreshedAccessToken);

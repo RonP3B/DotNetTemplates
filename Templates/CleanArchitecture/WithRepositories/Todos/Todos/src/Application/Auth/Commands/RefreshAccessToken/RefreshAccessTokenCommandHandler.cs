@@ -2,23 +2,23 @@
 using Todos.Application.Auth.DTOs;
 using Todos.Application.Users.DTOs;
 
-namespace Todos.Application.Auth.Queries.GetAccessToken;
+namespace Todos.Application.Auth.Commands.RefreshAccessToken;
 
-public class GetAccessTokenQueryHandler(
+public class RefreshAccessTokenCommandHandler(
     ITokenService tokenService,
     IApplicationUserManager applicationUserManager
-) : IRequestHandler<GetAccessTokenQuery, RefreshedAccessTokenDto>
+) : IRequestHandler<RefreshAccessTokenCommand, RefreshedAccessTokenDto>
 {
     private readonly ITokenService _tokenService = tokenService;
     private readonly IApplicationUserManager _applicationUserManager = applicationUserManager;
 
     public async Task<RefreshedAccessTokenDto> Handle(
-        GetAccessTokenQuery query,
+        RefreshAccessTokenCommand command,
         CancellationToken cancellationToken
     )
     {
         ApplicationResult result = await _tokenService.ValidateRefreshTokenAsync(
-            query.RefreshToken
+            command.RefreshToken
         );
 
         if (!result.Succeeded)
@@ -27,7 +27,7 @@ public class GetAccessTokenQueryHandler(
         }
 
         IEnumerable<Claim> refreshTokenClaims = await _tokenService.ReadTokenClaimsAsync(
-            query.RefreshToken
+            command.RefreshToken
         );
 
         string userIdentifier = refreshTokenClaims

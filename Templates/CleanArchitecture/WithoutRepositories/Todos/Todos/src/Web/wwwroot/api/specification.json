@@ -6,26 +6,6 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/v1/auth/access-token": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "RefreshAccessToken",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RefreshedAccessTokenDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/auth/logout": {
       "get": {
         "tags": [
@@ -97,6 +77,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh-access-token": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "RefreshAccessToken",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshedAccessTokenDto"
                 }
               }
             }
@@ -1017,15 +1017,6 @@
   },
   "components": {
     "schemas": {
-      "RefreshedAccessTokenDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          }
-        }
-      },
       "LoginResponseDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1043,6 +1034,15 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RefreshedAccessTokenDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
             "type": "string"
           }
         }
