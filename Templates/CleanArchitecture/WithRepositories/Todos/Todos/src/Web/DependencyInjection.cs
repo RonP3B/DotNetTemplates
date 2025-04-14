@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using Serilog;
 using Todos.Application.Shared.Interfaces;
 using Todos.Infrastructure.Data.Contexts;
 
@@ -9,7 +10,11 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebServices(this IServiceCollection services)
+    public static IServiceCollection AddWebServices(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        ConfigureHostBuilder host
+    )
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -52,6 +57,40 @@ public static class DependencyInjection
                     new AspNetCoreOperationSecurityScopeProcessor("JWT")
                 );
             }
+        );
+
+        services.AddCors(options =>
+        {
+            string[] allowedOrigins = Guard
+                .Against.NullOrWhiteSpace(
+                    configuration["Cors:AllowedOrigins"],
+                    message: "CORS not configured"
+                )
+                .Split(',');
+
+            options.AddPolicy(
+                CorsPolicies.DynamicCors,
+                builder =>
+                    builder
+                        .WithOrigins(allowedOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+            );
+        });
+
+        host.UseSerilog(
+            (context, configuration) =>
+                configuration
+                    .ReadFrom.Configuration(context.Configuration)
+                    // Exclude logs for handled exceptions
+                    .Filter.ByExcluding(logEvent =>
+                        logEvent.Properties.ContainsKey("SourceContext")
+                        && logEvent
+                            .Properties["SourceContext"]
+                            .ToString()
+                            .Contains("ExceptionHandlerMiddleware")
+                    )
         );
 
         return services;

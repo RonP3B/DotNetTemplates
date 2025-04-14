@@ -8,13 +8,13 @@ public class AppSettings(IConfiguration configuration) : IAppSettings
 
     public string BaseUrl =>
         Guard.Against.NullOrWhiteSpace(
-            _configuration["BaseUrl"],
-            message: "BaseUrl not configured"
+            _configuration["App:BaseUrl"],
+            message: "App:BaseUrl not configured"
         );
 
     public string ClientUrl =>
         Guard.Against.NullOrWhiteSpace(
-            _configuration["ClientUrl"],
-            message: "ClientUrl not configured"
+            _configuration["App:ClientUrl"],
+            message: "App:ClientUrl not configured"
         );
 }

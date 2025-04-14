@@ -1,4 +1,3 @@
-using Serilog;
 using Todos.Infrastructure.Data.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,21 +7,7 @@ builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddWebServices();
-
-builder.Host.UseSerilog(
-    (context, configuration) =>
-        configuration
-            .ReadFrom.Configuration(context.Configuration)
-            // Exclude logs for handled exceptions
-            .Filter.ByExcluding(logEvent =>
-                logEvent.Properties.ContainsKey("SourceContext")
-                && logEvent
-                    .Properties["SourceContext"]
-                    .ToString()
-                    .Contains("ExceptionHandlerMiddleware")
-            )
-);
+builder.Services.AddWebServices(builder.Configuration, builder.Host);
 
 var app = builder.Build();
 
@@ -40,6 +25,7 @@ else
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseCors(CorsPolicies.DynamicCors);
 
 app.UseSwaggerUi(settings =>
 {
