@@ -11,6 +11,7 @@ public class PerformanceBehaviour<TRequest, TResponse>(
     private readonly Stopwatch _timer = new Stopwatch();
     private readonly ILogger<TRequest> _logger = logger;
     private readonly ICurrentUser _currentUser = currentUser;
+    private const int WarningThresholdMs = 500;
 
     public async Task<TResponse> Handle(
         TRequest request,
@@ -26,19 +27,21 @@ public class PerformanceBehaviour<TRequest, TResponse>(
 
         long elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-        if (elapsedMilliseconds > 500)
+        if (elapsedMilliseconds > WarningThresholdMs)
         {
             string requestName = typeof(TRequest).Name;
             string userId = _currentUser.Id ?? string.Empty;
-            string userName = _currentUser.UserName ?? string.Empty;
+            string userInfo = !string.IsNullOrEmpty(userId)
+                ? $"{_currentUser.UserName ?? "(unnamed)"} (ID: {userId})"
+                : "No authenticated user";
 
             _logger.LogWarning(
-                "Todos Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
+                "[Performance Warning] Request '{RequestName}' took {ElapsedMilliseconds}ms to complete. "
+                    + "Threshold is {Threshold}ms. User: {UserInfo}",
                 requestName,
                 elapsedMilliseconds,
-                userId,
-                userName,
-                request
+                WarningThresholdMs,
+                userInfo
             );
         }
 

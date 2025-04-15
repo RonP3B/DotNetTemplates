@@ -10,10 +10,7 @@ public class TodoItemCompletedEventHandler(ILogger<TodoItemCompletedEventHandler
 
     public Task Handle(TodoItemCompletedEvent notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            "\nTodos Domain Event: {DomainEvent}\n",
-            notification.GetType().Name
-        );
+        _logger.LogInformation("Todos Domain Event: {DomainEvent}", notification.GetType().Name);
 
         return Task.CompletedTask;
     }

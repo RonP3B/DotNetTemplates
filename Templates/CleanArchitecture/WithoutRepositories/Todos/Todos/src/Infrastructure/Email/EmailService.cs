@@ -50,10 +50,12 @@ public class EmailService(IOptions<EmailSettings> mailSettings, ILogger<EmailSer
         {
             _logger.LogError(
                 exception,
-                "\nFailed to send email to recipient '{Recipient}' at address '{Address}' with subject '{Subject}'.\n",
+                "[Email Failure] Unable to send email | Recipient: '{Recipient}' | Address: '{Address}' | Subject: '{Subject}' | SMTP: {SmtpServer}:{Port}",
                 to,
                 address,
-                subject
+                subject,
+                _mailSettings.SmtpServer,
+                _mailSettings.Port
             );
         }
     }

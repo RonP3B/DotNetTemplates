@@ -58,7 +58,7 @@ public class ApplicationDbContextInitialiser
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "\nAn error occurred while initialising the database.\n");
+            _logger.LogError(ex, "An error occurred while initialising the database.");
             throw;
         }
     }
@@ -71,7 +71,7 @@ public class ApplicationDbContextInitialiser
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "\nAn error occurred while seeding the database.\n");
+            _logger.LogError(ex, "An error occurred while seeding the database.");
             throw;
         }
     }

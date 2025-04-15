@@ -14,14 +14,14 @@ public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger, ICurrentUser c
     {
         string requestName = typeof(TRequest).Name;
         string userId = _currentUser.Id ?? string.Empty;
-        string userName = _currentUser.UserName ?? string.Empty;
+        string userInfo = !string.IsNullOrEmpty(userId)
+            ? $"{_currentUser.UserName ?? "(unnamed)"} (ID: {userId})"
+            : "No authenticated user";
 
         _logger.LogInformation(
-            "\nTodos Request: {Name} {@UserId} {@UserName} {@Request}\n",
+            "[Todos Application] Handling Request: '{RequestName}' | User: {UserInfo}",
             requestName,
-            userId,
-            userName,
-            request
+            userInfo
         );
 
         return Task.CompletedTask;
