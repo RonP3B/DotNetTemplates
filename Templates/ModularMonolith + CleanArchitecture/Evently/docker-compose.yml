@@ -1,0 +1,114 @@
+version: '3.9'
+
+services:
+  evently.api:
+    image: ${DOCKER_REGISTRY-}eventlyapi
+    container_name: Evently.Api
+    build:
+      context: .
+      dockerfile: src/API/Evently.Api/Dockerfile
+    depends_on:
+      - evently.database
+    ports:
+      - 5000:8080
+      - 5001:8081
+
+  evently.gateway:
+    image: ${DOCKER_REGISTRY-}eventlygateway
+    container_name: Evently.Gateway
+    build:
+      context: src/API/Evently.Gateway
+      dockerfile: Dockerfile
+    ports:
+      - 3000:8080
+      - 3001:8081
+
+  evently.database:
+    image: postgres:17
+    container_name: Evently.Database
+    command: postgres -c 'max_connections=200'
+    environment:
+      - POSTGRES_DB=evently
+      - POSTGRES_USER=db_admin
+      - POSTGRES_PASSWORD=db_admin
+    volumes:
+      - evently_db:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+
+  evently.seq:
+    image: datalust/seq:2024.3
+    container_name: Evently.Logging
+    environment:
+    - ACCEPT_EULA=Y
+    ports:
+      - 5341:5341
+      - 8081:80
+
+  evently.redis:
+    image: redis:7.4.1
+    container_name: Evently.Caching
+    restart: always
+    ports:
+      - 6379:6379
+
+  evently.identity:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: Evently.Identity
+    command: start-dev --import-realm
+    environment:
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+      KC_DB: postgres
+      KC_DB_URL_HOST: evently.database
+      KC_DB_URL_DATABASE: evently
+      KC_DB_USERNAME: db_admin
+      KC_DB_PASSWORD: db_admin
+      KC_DB_SCHEMA: identity
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        'exec 3<>/dev/tcp/localhost/8080; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:8080\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR'
+      ]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    volumes:
+      - ./.files:/opt/keycloak/data/import
+    depends_on:
+      - evently.database
+    ports:
+      - 18080:8080
+      - 18081:9000
+  evently.jaeger:
+    image: jaegertracing/all-in-one:1.64.0
+    container_name: Evently.Jaeger
+    ports:
+      - 4317:4317
+      - 4318:4318
+      - 16686:16686
+
+  evently.queue:
+    image: rabbitmq:4.0.5-management-alpine
+    container_name: Evently.Queue
+    hostname: evently-queue
+    volumes:
+      - evently_queue:/var/lib/rabbitmq
+      - evently_queue:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+
+
+volumes:
+  evently_db:
+    name: evently_db
+  evently_queue:
+    name: evently_queue
